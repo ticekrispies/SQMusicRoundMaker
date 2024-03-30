@@ -96,6 +96,6 @@ for i, track in enumerate(playlist_tracks, start=1):
 
 tree = ET.ElementTree(round)
 print('Generating XML file...')
-tree.write(f'C:/Users/thijs/Desktop/SQ Music Round {date_time}.sqq', encoding='utf-8')
+tree.write(f'output/SQ Music Round {date_time}.sqq', encoding='utf-8')
 print('XML file generated!')
 print('DONE: SpeedQuizzing music round successfully generated!')
