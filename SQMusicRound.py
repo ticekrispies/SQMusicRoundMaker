@@ -67,6 +67,53 @@ class MusicRoundManager:
 
         return ""
 
+    @staticmethod
+    def handle_article_words(answer: str) -> str:
+        split_answer = answer.split()
+        if split_answer[0].upper() in ['THE', 'A', 'AN']:
+            article = split_answer.pop(0)
+            answer = " ".join(split_answer) + f", {article}"
+
+        return answer
+
+    @staticmethod
+    def is_valid_as_answer(answer: str) -> bool:
+        valid_characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        if answer[0] in valid_characters:
+            return True
+        else:
+            return False
+
+    def parse_tracks(self, track_list: list[dict]) -> list[dict]:
+        parsed_tracks = []
+
+        for track in track_list:
+            track_dict = track["track"]
+            parsed_track = {
+                "artists": [],
+                "title": "",
+                "valid_title": False,
+                "thumbnail_image": "",
+            }
+
+            for artist in track_dict["artists"]:
+                name = self.handle_article_words(artist["name"])
+                is_valid = self.is_valid_as_answer(name)
+                parsed_track["artists"].append(
+                    {
+                        "name": name,
+                        "is_valid": is_valid,
+                    }
+                )
+            track_title = self.handle_article_words(track_dict["name"])
+            parsed_track["title"] = track_title
+            parsed_track["valid_title"] = self.is_valid_as_answer(track_title)
+            parsed_track["thumbnail_image"] = self.get_thumbnail_url(track_dict)
+
+            parsed_tracks.append(parsed_track)
+
+        return parsed_tracks
+
     def generate_xml(self, playlist_tracks):
         now = datetime.now()  # current date and time
         date_time = now.strftime('%d %m %Y')
@@ -176,5 +223,6 @@ class MusicRoundManager:
 
 if __name__ == "__main__":
     round_manager = MusicRoundManager()
-    track_list = round_manager.get_playlist_from_url("https://open.spotify.com/playlist/3kEZx9U50LzFp2c31fq27j?si=35374eeb7e424143")
-    round_manager.generate_xml(track_list)
+    new_track_list = round_manager.get_playlist_from_url("https://open.spotify.com/playlist/3kEZx9U50LzFp2c31fq27j?si=35374eeb7e424143")
+    # round_manager.generate_xml(track_list)
+    print(round_manager.parse_tracks(new_track_list))
