@@ -48,7 +48,7 @@ class MusicRoundManager:
 
     def get_playlist_from_url(self, playlist_url: str) -> list[dict]:
         playlist_id = playlist_url.split('/')[-1].split('?')[0]
-        playlist_tracks = self.spotify.playlist_tracks(playlist_id)['items']
+        playlist_tracks = self.spotify.playlist_items(playlist_id)['items']
 
         return playlist_tracks
 
