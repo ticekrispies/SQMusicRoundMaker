@@ -52,6 +52,15 @@ class MusicRoundManager:
 
         return playlist_tracks
 
+    @staticmethod
+    def get_thumbnail_url(track: dict) -> str:
+        images = track["album"]["images"]
+        for image in images:
+            if image["height"] == 64:
+                return image["url"]
+
+        return ""
+
     def generate_xml(self, playlist_tracks):
         now = datetime.now()  # current date and time
         date_time = now.strftime('%d %m %Y')
