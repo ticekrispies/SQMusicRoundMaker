@@ -147,26 +147,24 @@ class MusicRoundManager:
 
             question_target = random.choice(['ARTIST', 'SONG'])
 
-            # print(artist_name.upper().split()[1:])
-            print(artist_name[0].isdigit())
             # Check if the question target is 'ARTIST'
             if question_target == 'ARTIST':
                 # Handle exception of both inputs being invalid
                 split_artist_name = artist_name.split()
                 if split_artist_name[0].upper() in ['THE', 'A', 'AN']:
                     article = split_artist_name.pop(0)
-                    artist_name = " ".join(split_artist_name) + f", {article}"
-                if artist_name[0].isdigit():
+                    short_artist_name = " ".join(split_artist_name)
+                if short_artist_name[0].isdigit():
                     split_track_name = track_name.split()
                     if split_track_name[0].upper() in ['THE', 'A', 'AN']:
                         article = split_track_name.pop(0)
-                        track_name = " ".join(split_track_name) + f", {article}"
-                    if track_name[0].isdigit():
+                        short_track_name = " ".join(split_track_name)
+                    if short_track_name[0].isdigit():
                         raise ValueError(
                             f'SONG #{i} INVALID: Both artist_name ({artist_name}, first char {artist_name[0]}) and track_name ({track_name}, first char {track_name[0]}) start with articles or numbers. Target was {question_target}, ({artist_name} with "{track_name})". Please swap out this entry for a valid one.')
                     else:
                         q_text = f'MUSIC ROUND #{song_number} - Tap on the first letter of the SONG TITLE'
-                        s_answer = track_name[0].upper()
+                        s_answer = short_track_name[0].upper()
                         l_answer = f'"{track_name}" by {artist_name}'
                         print(
                             f'XML Question element #{i} successfully added: answer set to "{s_answer}" as target is SONG for entry "{track_name}" by {artist_name}.')
@@ -175,7 +173,7 @@ class MusicRoundManager:
                     s_answer = artist_name[0].upper()
                     l_answer = f'{artist_name} with "{track_name}"'
                     print(
-                        f'XML Question element #{i} successfully added: answer set to "{s_answer}" as target is ARTIST for entry {artist_name} with"{track_name}" by ')
+                        f'XML Question element #{i} successfully added: answer set to "{s_answer}" as target is ARTIST for entry {artist_name} with "{track_name}"')
 
             # Check if the question target is 'SONG'
             if question_target == 'SONG':
@@ -183,21 +181,21 @@ class MusicRoundManager:
                 split_track_name = track_name.split()
                 if split_track_name[0].upper() in ['THE', 'A', 'AN']:
                     article = split_track_name.pop(0)
-                    track_name = " ".join(split_track_name) + f", {article}"
+                    short_track_name = " ".join(split_track_name)
                 if track_name[0].isdigit():
                     split_artist_name = artist_name.split()
                     if split_artist_name[0].upper() in ['THE', 'A', 'AN']:
                         article = split_artist_name.pop(0)
-                        artist_name = " ".join(split_artist_name) + f", {article}"
-                    if artist_name[0].isdigit():
+                        short_artist_name = " ".join(split_artist_name)
+                    if short_artist_name[0].isdigit():
                         raise ValueError(
                             f'SONG #{i} INVALID: Both artist_name ({artist_name}, first char {artist_name[0]}) and track_name ({track_name}, first char {track_name[0]}) start with articles or numbers. Target was {question_target}, ({artist_name} with "{track_name})". Please swap out this entry for a valid one.')
                     else:
                         q_text = f'MUSIC ROUND #{song_number} - Tap on the first letter of the ARTIST name'
-                        s_answer = artist_name[0].upper()
+                        s_answer = short_artist_name[0].upper()
                         l_answer = f'{artist_name} with "{track_name}"'
                         print(
-                            f'XML Question element #{i} successfully added: answer set to "{s_answer}" as target is ARTIST for entry {artist_name} with"{track_name}" by ')
+                            f'XML Question element #{i} successfully added: answer set to "{s_answer}" as target is ARTIST for entry {artist_name} with "{track_name}"')
                 else:
                     q_text = f'MUSIC ROUND #{song_number} - Tap on the first letter of the SONG TITLE'
                     s_answer = track_name[0].upper()
@@ -223,6 +221,6 @@ class MusicRoundManager:
 
 if __name__ == "__main__":
     round_manager = MusicRoundManager()
-    new_track_list = round_manager.get_playlist_from_url("https://open.spotify.com/playlist/3kEZx9U50LzFp2c31fq27j?si=35374eeb7e424143")
-    # round_manager.generate_xml(track_list)
-    print(round_manager.parse_tracks(new_track_list))
+    new_track_list = round_manager.get_playlist_from_url("https://open.spotify.com/playlist/3kEZx9U50LzFp2c31fq27j?si=c46d931150cc4979")
+    round_manager.generate_xml(new_track_list)
+    #print(round_manager.parse_tracks(new_track_list))
