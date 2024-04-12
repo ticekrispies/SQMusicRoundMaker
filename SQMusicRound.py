@@ -114,6 +114,67 @@ class MusicRoundManager:
 
         return parsed_tracks
 
+    def generate_xml_from_parsed(self, parsed_tracks: list[dict]):
+        now = datetime.now()  # current date and time
+        date_time = now.strftime('%d %m %Y')
+
+        new_round = ET.Element('round')
+        ET.SubElement(new_round, 'game').text = 'Quizsentials'
+        ET.SubElement(new_round, 'title').text = f'SQ Music Round {date_time}'
+        ET.SubElement(new_round, 'points_per_question').text = '10'
+        ET.SubElement(new_round, 'go_wide').text = 'true'
+        ET.SubElement(new_round, 'speed_bonus').text = 'true'
+
+        questions = ET.SubElement(new_round, 'questions')
+
+        for i, track in enumerate(parsed_tracks, start=1):
+            artist_name = track["artists"][0]["name"]
+            valid_artist = track["artists"][0]["is_valid"]
+            track_name = track["title"]
+            valid_track = track["valid_title"]
+
+            if not valid_artist and not valid_track:
+                raise ValueError(
+                    f'SONG #{i} INVALID: Both artist_name ({artist_name}, first char {artist_name[0]}) and track_name ({track_name}, first char {track_name[0]}) start with illegal characters. Please swap out this entry for a valid one.'
+                )
+
+            if not valid_artist:
+                question_target = "SONG"
+            else:
+                question_target = random.choice(['ARTIST', 'SONG'])
+
+            song_number = f"{i}"
+            q_text = ''
+
+            if question_target == 'ARTIST':
+                q_text = f'MUSIC ROUND #{song_number} - Tap on the first letter of the ARTIST name'
+                s_answer = artist_name[0].upper()
+                l_answer = f'{artist_name} with "{track_name}"'
+                print(
+                    f'XML Question element #{i} successfully added: answer set to "{s_answer}" as target is ARTIST for entry {artist_name} with"{track_name}" by ')
+
+            if question_target == 'SONG':
+                q_text = f'MUSIC ROUND #{song_number} - Tap on the first letter of the SONG TITLE'
+                s_answer = track_name[0].upper()
+                l_answer = f'"{track_name}" by {artist_name}'
+                print(
+                    f'XML Question element #{i} successfully added: answer set to "{s_answer}" as target is SONG for entry "{track_name}" by {artist_name}.')
+
+            question = ET.SubElement(questions, 'question')
+            ET.SubElement(question, 'user_view').text = 'letters'
+            ET.SubElement(question, 'q').text = q_text
+            ET.SubElement(question, 'short_answer').text = s_answer
+            ET.SubElement(question, 'long_answer').text = l_answer
+            ET.SubElement(question, 'picture').text = self.b64_encoded_image
+            ET.SubElement(question, 'id').text = str(i)
+
+        tree = ET.ElementTree(new_round)
+        print('Generating XML file...')
+        file_path = os.path.join(self.output_location, f"SQ Music Round {date_time}.sqq")
+        tree.write(file_path, encoding='utf-8')
+        print('XML file generated!')
+        print('DONE: SpeedQuizzing music round successfully generated!')
+
     def generate_xml(self, playlist_tracks):
         now = datetime.now()  # current date and time
         date_time = now.strftime('%d %m %Y')
@@ -221,6 +282,6 @@ class MusicRoundManager:
 
 if __name__ == "__main__":
     round_manager = MusicRoundManager()
-    new_track_list = round_manager.get_playlist_from_url("https://open.spotify.com/playlist/3kEZx9U50LzFp2c31fq27j?si=c46d931150cc4979")
-    round_manager.generate_xml(new_track_list)
-    #print(round_manager.parse_tracks(new_track_list))
+    new_track_list = round_manager.get_playlist_from_url("https://open.spotify.com/playlist/5uUyfOzZtZPxUkFCAUTNE2?si=ff7b076234c14038")
+    # round_manager.generate_xml(new_track_list)
+    round_manager.generate_xml_from_parsed(round_manager.parse_tracks(new_track_list))
