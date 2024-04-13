@@ -117,6 +117,34 @@ class MusicRoundManager:
 
         return parsed_tracks
 
+    @staticmethod
+    def randomized_selection(track_list: list[dict]) -> list[dict]:
+        for i, track in enumerate(track_list):
+            artist_name = track["artists"][0]["name"]
+            valid_artist = track["artists"][0]["is_valid"]
+
+            track_name = track["title"]
+            valid_track = track["valid_title"]
+
+            if not valid_artist and not valid_track:
+                raise ValueError(
+                    f'SONG #{i} INVALID: Both artist_name ({artist_name}, first char {artist_name[0]}) and track_name ({track_name}, first char {track_name[0]}) start with illegal characters. Please swap out this entry for a valid one.'
+                )
+
+            question_target = random.choice(['ARTIST', 'SONG'])
+
+            # Flip target if invalid target selected
+            if question_target == "ARTIST" and not valid_artist:
+                print(f"Artist {artist_name} invalid, switching target to song: {track_name}.")
+                question_target = "SONG"
+            elif question_target == "SONG" and not valid_track:
+                print(f"Song {track_name} invalid, switching target to artist: {artist_name}.")
+                question_target = "ARTIST"
+
+            track_list[i]["target"] = question_target
+
+        return track_list
+
     def generate_xml_from_parsed(self, parsed_tracks: list[dict]):
         now = datetime.now()  # current date and time
         date_time = now.strftime('%d %m %Y')
@@ -136,17 +164,8 @@ class MusicRoundManager:
 
             track_display = track["display"]
             track_name = track["title"]
-            valid_track = track["valid_title"]
 
-            if not valid_artist and not valid_track:
-                raise ValueError(
-                    f'SONG #{i} INVALID: Both artist_name ({artist_name}, first char {artist_name[0]}) and track_name ({track_name}, first char {track_name[0]}) start with illegal characters. Please swap out this entry for a valid one.'
-                )
-
-            if not valid_artist:
-                question_target = "SONG"
-            else:
-                question_target = random.choice(['ARTIST', 'SONG'])
+            question_target = track["target"]
 
             song_number = f"{i}"
             q_text = ''
