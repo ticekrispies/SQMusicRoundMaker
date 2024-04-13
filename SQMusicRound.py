@@ -1,3 +1,4 @@
+import json
 import os
 import pathlib
 import spotipy
@@ -289,6 +290,10 @@ if __name__ == "__main__":
     if use_parsed_list:
         parsed_list = round_manager.parse_tracks(new_track_list)
         selected_list = round_manager.randomized_selection(parsed_list)
+
+        with open("parsed_list.json", mode="w+", encoding="UTF-8") as f:
+            json.dump(selected_list, f, indent=4)
+
         round_manager.generate_xml_from_parsed(selected_list)
     else:
         round_manager.generate_xml(new_track_list)
