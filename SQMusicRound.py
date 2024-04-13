@@ -283,5 +283,13 @@ class MusicRoundManager:
 if __name__ == "__main__":
     round_manager = MusicRoundManager()
     new_track_list = round_manager.get_playlist_from_url("https://open.spotify.com/playlist/5uUyfOzZtZPxUkFCAUTNE2?si=ff7b076234c14038")
-    # round_manager.generate_xml(new_track_list)
-    round_manager.generate_xml_from_parsed(round_manager.parse_tracks(new_track_list))
+
+    use_parsed_list = True  # Set True for experimental parser and generation
+
+    if use_parsed_list:
+        parsed_list = round_manager.parse_tracks(new_track_list)
+        selected_list = round_manager.randomized_selection(parsed_list)
+        round_manager.generate_xml_from_parsed(selected_list)
+    else:
+        round_manager.generate_xml(new_track_list)
+
