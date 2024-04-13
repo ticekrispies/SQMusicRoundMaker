@@ -103,11 +103,13 @@ class MusicRoundManager:
                 parsed_track["artists"].append(
                     {
                         "name": name,
+                        "display": artist["name"],
                         "is_valid": is_valid,
                     }
                 )
             track_title = self.handle_article_words(track_dict["name"])
             parsed_track["title"] = track_title
+            parsed_track["display"] = track_dict["name"]
             parsed_track["valid_title"] = self.is_valid_as_answer(track_title)
             parsed_track["thumbnail_image"] = self.get_thumbnail_url(track_dict)
 
@@ -129,8 +131,10 @@ class MusicRoundManager:
         questions = ET.SubElement(new_round, 'questions')
 
         for i, track in enumerate(parsed_tracks, start=1):
+            artist_display = track["artists"][0]["display"]
             artist_name = track["artists"][0]["name"]
-            valid_artist = track["artists"][0]["is_valid"]
+
+            track_display = track["display"]
             track_name = track["title"]
             valid_track = track["valid_title"]
 
@@ -150,14 +154,14 @@ class MusicRoundManager:
             if question_target == 'ARTIST':
                 q_text = f'MUSIC ROUND #{song_number} - Tap on the first letter of the ARTIST name'
                 s_answer = artist_name[0].upper()
-                l_answer = f'{artist_name} with "{track_name}"'
+                l_answer = f'{artist_display} with "{track_display}"'
                 print(
                     f'XML Question element #{i} successfully added: answer set to "{s_answer}" as target is ARTIST for entry {artist_name} with"{track_name}" by ')
 
             if question_target == 'SONG':
                 q_text = f'MUSIC ROUND #{song_number} - Tap on the first letter of the SONG TITLE'
                 s_answer = track_name[0].upper()
-                l_answer = f'"{track_name}" by {artist_name}'
+                l_answer = f'"{track_display}" by {artist_display}'
                 print(
                     f'XML Question element #{i} successfully added: answer set to "{s_answer}" as target is SONG for entry "{track_name}" by {artist_name}.')
 
