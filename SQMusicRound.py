@@ -122,23 +122,23 @@ class MusicRoundManager:
         for i, track in enumerate(track_list):
             artist_name = track["artists"][0]["name"]
             valid_artist = track["artists"][0]["is_valid"]
-
+            
             track_name = track["title"]
             valid_track = track["valid_title"]
 
             if not valid_artist and not valid_track:
                 raise ValueError(
-                    f'SONG #{i} INVALID: Both artist_name ({artist_name}, first char {artist_name[0]}) and track_name ({track_name}, first char {track_name[0]}) start with illegal characters. Please swap out this entry for a valid one.'
+                    f'SONG #{i+1} INVALID: Both artist_name ({artist_name}, first char {artist_name[0]}) and track_name ({track_name}, first char {track_name[0]}) start with illegal characters. Please swap out this entry for a valid one.'
                 )
-
+            
             question_target = random.choice(['ARTIST', 'SONG'])
 
             # Flip target if invalid target selected
             if question_target == "ARTIST" and not valid_artist:
-                print(f"Artist {artist_name} invalid, switching target to song: {track_name}.")
+                print(f"SONG #{i+1}: Artist name invalid ('{artist_name}'), switching target to song title: '{track_name}'.")
                 question_target = "SONG"
             elif question_target == "SONG" and not valid_track:
-                print(f"Song {track_name} invalid, switching target to artist: {artist_name}.")
+                print(f"SONG #{i+1}: Song title invalid ('{track_name}'), switching target to artist name: '{artist_name}'.")
                 question_target = "ARTIST"
 
             track_list[i]["target"] = question_target
@@ -167,22 +167,19 @@ class MusicRoundManager:
 
             question_target = track["target"]
 
-            song_number = f"{i}"
-            q_text = ''
-
             if question_target == 'ARTIST':
-                q_text = f'MUSIC ROUND #{song_number} - Tap on the first letter of the ARTIST name'
+                q_text = f'MUSIC ROUND #{i} - Tap on the first letter of the ARTIST name'
                 s_answer = artist_name[0].upper()
                 l_answer = f'{artist_display} with "{track_display}"'
                 print(
-                    f'XML Question element #{i} successfully added: answer set to "{s_answer}" as target is ARTIST for entry {artist_name} with"{track_name}" by ')
+                    f'XML Question element #{i} successfully added: answer set to "{s_answer}" as target is ARTIST for entry "{artist_display}" with "{track_display}"')
 
             if question_target == 'SONG':
-                q_text = f'MUSIC ROUND #{song_number} - Tap on the first letter of the SONG TITLE'
+                q_text = f'MUSIC ROUND #{i} - Tap on the first letter of the SONG TITLE'
                 s_answer = track_name[0].upper()
                 l_answer = f'"{track_display}" by {artist_display}'
                 print(
-                    f'XML Question element #{i} successfully added: answer set to "{s_answer}" as target is SONG for entry "{track_name}" by {artist_name}.')
+                    f'XML Question element #{i} successfully added: answer set to "{s_answer}" as target is SONG for entry "{track_display}" by "{artist_display}".')
 
             question = ET.SubElement(questions, 'question')
             ET.SubElement(question, 'user_view').text = 'letters'
@@ -199,6 +196,7 @@ class MusicRoundManager:
         print('XML file generated!')
         print('DONE: SpeedQuizzing music round successfully generated!')
 
+    # DEPRECATED METHOD - DELETE?
     def generate_xml(self, playlist_tracks):
         now = datetime.now()  # current date and time
         date_time = now.strftime('%d %m %Y')
@@ -230,14 +228,15 @@ class MusicRoundManager:
             song_number = f"{i}"
             q_text = ''
 
-            question_target = random.choice(['ARTIST', 'SONG'])
+            question_target = 'ARTIST'
+            random.choice(['ARTIST', 'SONG'])
 
             # Check if the question target is 'ARTIST'
             if question_target == 'ARTIST':
+                print(artist_name + ' ' + track_name)
                 # Handle exception of both inputs being invalid
                 split_artist_name = artist_name.split()
                 if split_artist_name[0].upper() in ['THE', 'A', 'AN']:
-                    article = split_artist_name.pop(0)
                     short_artist_name = " ".join(split_artist_name)
                 if artist_name[0].isdigit():
                     split_track_name = track_name.split()
@@ -262,10 +261,10 @@ class MusicRoundManager:
 
             # Check if the question target is 'SONG'
             if question_target == 'SONG':
+                print(artist_name + ' ' + track_name)
                 # Handle exception of both inputs being invalid
                 split_track_name = track_name.split()
                 if split_track_name[0].upper() in ['THE', 'A', 'AN']:
-                    article = split_track_name.pop(0)
                     short_track_name = " ".join(split_track_name)
                 if track_name[0].isdigit():
                     split_artist_name = artist_name.split()
@@ -306,9 +305,9 @@ class MusicRoundManager:
 
 if __name__ == "__main__":
     round_manager = MusicRoundManager()
-    new_track_list = round_manager.get_playlist_from_url("https://open.spotify.com/playlist/5uUyfOzZtZPxUkFCAUTNE2?si=ff7b076234c14038")
+    new_track_list = round_manager.get_playlist_from_url("https://open.spotify.com/playlist/1dsT5TaPNU6thLXAGbYd2h?si=7160c10fc6d2423f")
 
-    use_parsed_list = False  # Set True for experimental parser and generation
+    use_parsed_list = True  # Set True for experimental parser and generation
 
     if use_parsed_list:
         parsed_list = round_manager.parse_tracks(new_track_list)
