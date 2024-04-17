@@ -239,7 +239,7 @@ class MusicRoundManager:
                 if split_artist_name[0].upper() in ['THE', 'A', 'AN']:
                     article = split_artist_name.pop(0)
                     short_artist_name = " ".join(split_artist_name)
-                if short_artist_name[0].isdigit():
+                if artist_name[0].isdigit():
                     split_track_name = track_name.split()
                     if split_track_name[0].upper() in ['THE', 'A', 'AN']:
                         article = split_track_name.pop(0)
@@ -308,7 +308,7 @@ if __name__ == "__main__":
     round_manager = MusicRoundManager()
     new_track_list = round_manager.get_playlist_from_url("https://open.spotify.com/playlist/5uUyfOzZtZPxUkFCAUTNE2?si=ff7b076234c14038")
 
-    use_parsed_list = True  # Set True for experimental parser and generation
+    use_parsed_list = False  # Set True for experimental parser and generation
 
     if use_parsed_list:
         parsed_list = round_manager.parse_tracks(new_track_list)
