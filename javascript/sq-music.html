@@ -10,65 +10,115 @@
 		<title>SQ Music Round Gen</title>
 	</head>
 	<body>
-		<div class="container">
-			<div class="row">
-				<div class="col text-center">
-					<h1>SQ Music Round Generator</h1>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col d-flex justify-content-center w-100">
-					<div style="width: 90%;border-top: 1px solid var(--bs-body-color);"></div>
-				</div>
-			</div>
-			<div class="row" style="margin-top: 20px;">
-				<div class="col">
-					<div class="row">
-						<div class="col-auto d-flex align-items-center"><label class="col-form-label" for="secret_input">Client Secret</label></div>
-						<div class="col d-flex align-items-center"><input id="secret_input" class="w-100" type="text" /></div>
-					</div>
-					<div class="row">
-						<div class="col-auto d-flex align-items-center"><label class="col-form-label" for="id_input">      Client ID</label></div>
-						<div class="col d-flex align-items-center"><input id="id_input" class="w-100" type="text" /></div>
-					</div>
-					<div class="row">
-						<div class="col">
-							<div class="d-flex justify-content-center"><button id="login_button" class="btn btn-primary" type="button">Log In</button></div>
-						</div>
-					</div>
-					<div class="row" style="margin: 20px 0;">
-						<div class="col d-flex justify-content-center w-100">
-							<div style="width: 50%;border-top: 1px solid var(--bs-body-color);"></div>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-auto d-flex align-items-center"><label class="col-form-label" for="playlist_input">Playlist URL</label></div>
-						<div class="col d-flex align-items-center"><input id="playlist_input" class="w-100" type="text" /></div>
-					</div>
-					<div class="row" style="margin: 20px 0;">
-						<div class="col d-flex justify-content-center w-100">
-							<div style="width: 50%;border-top: 1px solid var(--bs-body-color);"></div>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col">
-							<div class="d-flex justify-content-center"><button id="generate_xml_button" class="btn btn-primary disabled" type="button">Generate</button></div>
-						</div>
-					</div>
-					<div class="row d-none" style="margin: 20px 0;">
-						<div class="col d-flex justify-content-center w-100">
-							<div style="width: 50%;border-top: 1px solid var(--bs-body-color);"></div>
-						</div>
-					</div>
-					<div class="row d-none">
-						<div class="col">
-							<div class="d-flex justify-content-center"><button id="download_button" class="btn btn-primary d-none" type="button">Download</button></div>
-						</div>
-					</div>
-				</div>
-			</div>
+		<div class="container w-100">
+		    <div class="row">
+		        <div class="col">
+		            <h1 class="text-center">SQ Music Round Generator</h1>
+		        </div>
+		    </div>
+		    <div class="row">
+		        <div class="col d-flex justify-content-center w-100" style="margin-bottom: 20px;">
+		            <div style="width: 90%;border-top-width: 1px;border-top-style: solid;"></div>
+		        </div>
+		    </div>
+		    <div class="row">
+		        <div class="col">
+		            <div id="control_panel" style="border-style: outset;">
+		                <div class="row">
+		                    <div class="col" style="border-right-style: solid;">
+		                        <div class="row">
+		                            <div class="col-3 text-end"><label class="col-form-label" for="id_input">ID</label></div>
+		                            <div class="col d-flex align-items-center"><input id="id_input" class="w-100" type="text" /></div>
+		                        </div>
+		                        <div class="row">
+		                            <div class="col-3 text-end"><label class="col-form-label" for="secret_input">Secret</label></div>
+		                            <div class="col d-flex align-items-center"><input id="secret_input" class="w-100" type="text" /></div>
+		                        </div>
+		                        <div class="row">
+		                            <div class="col-3 text-end"><label class="col-form-label" for="playlist_input">Playlist</label></div>
+		                            <div class="col d-flex align-items-center"><input id="playlist_input" class="w-100" type="text" /></div>
+		                        </div>
+		                        <div class="row">
+		                            <div class="col d-flex justify-content-evenly">
+										<button class="btn btn-primary" type="button" id="login_button">Login</button>
+										<button class="btn btn-primary disabled" type="button" id="load_button">Load</button>
+										<button class="btn btn-primary disabled" type="button" id="download_button">Download</button>
+								</div>
+		                        </div>
+		                    </div>
+		                    <div class="col">
+		                        <div class="row">
+		                            <div class="col-3 text-end"><label class="col-form-label" for="id_input">Round Title</label></div>
+		                            <div class="col d-flex align-items-center"><input id="id_input-1" class="w-100" type="text" /></div>
+		                        </div>
+		                        <div class="row">
+		                            <div class="col-3 text-end"><label class="col-form-label" for="secret_input">Question</label></div>
+		                            <div class="col d-flex align-items-center"><input id="secret_input-1" class="w-100" type="text" /></div>
+		                        </div>
+		                        <div class="row">
+		                            <div class="col-3 text-end"><label class="col-form-label" for="playlist_input">Answer</label></div>
+		                            <div class="col d-flex align-items-center"><input id="playlist_input-1" class="w-100" type="text" /></div>
+		                        </div>
+		                        <div class="row">
+		                            <div class="col d-flex justify-content-evenly">
+		                                <div class="d-flex align-items-center"><label class="form-label">Points </label><input type="number" placeholder="0" min="0" max="99" step="1" /></div>
+		                                <div class="d-flex align-items-center">
+		                                    <div class="form-check form-check-reverse"><input id="formCheck-1" class="form-check-input" type="checkbox" /><label class="form-check-label" for="formCheck-1">Wide</label></div>
+		                                </div>
+		                                <div class="d-flex align-items-center">
+		                                    <div class="form-check form-check-reverse"><input id="formCheck-2" class="form-check-input" type="checkbox" /><label class="form-check-label" for="formCheck-2">Evil</label></div>
+		                                </div>
+		                            </div>
+		                        </div>
+		                    </div>
+		                </div>
+		            </div>
+		            <div id="track_list" style="border-style: outset;">
+		                <div class="row">
+		                    <div class="col">
+		                        <ul id="trackContainer" class="list-unstyled" style="padding: 5px 0px;"></ul>
+		                    </div>
+		                </div>
+		            </div>
+		        </div>
+		    </div>
 		</div>
-		<script src="static/libraries/fflate.js/"></script>
+		<template id="trackTemplate">
+			<li style="border-style: inset;">
+				<div>
+					<div class="row">
+						<div class="col-auto align-self-center">
+							<img class="trackImg" width="64" height="64" src="" />
+						</div>
+						<div class="col h-100" style="border-right-style: solid;">
+							<div class="row g-0">
+								<div class="col-auto"><label class="col-form-label">Artists:</label></div>
+								<div class="col text-center align-self-center">
+									<select class="w-75 artistList"></select>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-auto"><label class="col-form-label">   Title:</label></div>
+								<div class="col text-center align-self-center"><span class="trackTitle">Track 1</span></div>
+							</div>
+						</div>
+						<div class="col-4">
+							<div class="row">
+								<div class="col d-flex justify-content-around">
+									<div class="form-check"><input id="formCheck-4" class="form-check-input" type="radio" checked /><label class="form-check-label" for="formCheck-4">Random</label></div>
+									<div class="form-check"><input id="formCheck-3" class="form-check-input" type="radio" /><label class="form-check-label" for="formCheck-3">Artist</label></div>
+									<div class="form-check"><input id="formCheck-5" class="form-check-input" type="radio" /><label class="form-check-label" for="formCheck-5">Track</label></div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col d-flex justify-content-center"><button class="btn btn-primary" type="button">More Options</button></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</li>
+		</template>
+		<script src="static/libraries/fflate.js"></script>
 		<script src="static/libraries/FileSaver.min.js"></script>
 		<!-- Bootstrap (5.3.3) JS with Popper -->
 		<script src="static/libraries/bootstrap/bootstrap.bundle.min.js"></script>
