@@ -298,22 +298,24 @@ class MusicRoundManager{
 	}
 	
 	create_download(xml_string){
+		const date = new Date(Date.now()).toLocaleDateString().replaceAll("/", "")
 		const zipped = fflate.zipSync({
 				"sq_round.sqq": fflate.strToU8(xml_string)
 			}, {
 				level: 6,
 			});
 		const blob = new Blob([zipped], {type: "application/zip"});
-		saveAs(blob, "sqq_round.zip");
+		saveAs(blob, `sqq_round${date}.zip`);
 	}
 
 	generate_xml(){
+		const date = new Date(Date.now()).toLocaleDateString().replaceAll("/", " ")
 		const xml_doc = document.implementation.createDocument("", "", null)
 		const round_element = xml_doc.createElement("round")
 		const game_element = xml_doc.createElement("game")
 		game_element.appendChild(xml_doc.createTextNode("Quizsentials"))
 		const title_element = xml_doc.createElement("title")
-		title_element.appendChild(xml_doc.createTextNode("SQ Music Round 17 04 2024"))
+		title_element.appendChild(xml_doc.createTextNode(`SQ Music Round ${date}`))
 		const points_element = xml_doc.createElement("points_per_question")
 		points_element.appendChild(xml_doc.createTextNode("10"))
 		const wide_element = xml_doc.createElement("go_wide")
