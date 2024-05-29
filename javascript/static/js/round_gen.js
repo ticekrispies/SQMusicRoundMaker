@@ -217,6 +217,7 @@ class MusicRoundManager{
 	}
 	
 	parse_tracks(track_list){
+		window.round_manager.parsed_tracks.length = 0	// Empties previously loaded track list
 		let position = 1
 		track_list.forEach(track=>{
 			const track_obj = track.track
@@ -254,6 +255,7 @@ class MusicRoundManager{
 	}
 	
 	populate_track_list(){
+		this.track_container.empty()
 		this.parsed_tracks.forEach(track=>{
 			const clone = this.track_template.prop("content").cloneNode(true)
 
