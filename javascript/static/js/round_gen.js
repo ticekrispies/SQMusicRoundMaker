@@ -6,26 +6,154 @@ class MusicRoundManager{
 		this.track_template = $("#trackTemplate")
 	}
 	
-	get_auth(){
-		this.client_secret = $("#secret_input").val()
-		this.client_id = $("#id_input").val()
-		const authString = this.client_id + ':' + this.client_secret
+	async get_client_id(){
+		const endpoint = `/clientid`
+
 		const ajaxOpts = {
-			method: "POST",
-			url: 'https://accounts.spotify.com/api/token',
+			method: "GET",
+			url: endpoint,
 			headers: {
-				'Authorization': 'Basic ' + btoa(authString)
-			},
-			data: {
-				grant_type: 'client_credentials'
 			},
 			json: true,
 			success: function (response){
-				window.round_manager.auth_token = response.access_token
-				$("#login_button").addClass("disabled")
-				$("#load_button").removeClass("disabled")
+				return response
 			}
 		}
+
+		return $.ajax(ajaxOpts)
+	}
+
+	get_code_verifier(){
+		let verifier = localStorage.getItem("code_verifier")
+		if(verifier){
+			window.round_manager.code_verifier = verifier
+		} else {
+			window.round_manager.generate_code_verifier()
+		}
+	}
+
+	generate_code_verifier(){
+		const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+		const values = crypto.getRandomValues(new Uint8Array(69))
+		const code_verifier =  values.reduce((acc, x) => acc + possible[x % possible.length], "")
+		window.round_manager.code_verifier = code_verifier
+		localStorage.setItem("code_verifier", code_verifier)
+	}
+
+	async generate_code_challenge(){
+		window.round_manager.get_code_verifier()
+		const verifier = window.round_manager.code_verifier
+		const encoder = new TextEncoder()
+		const data = encoder.encode(verifier)
+		const sha256 = await window.crypto.subtle.digest("SHA-256", data)
+
+		window.round_manager.code_challenge = btoa(String.fromCharCode(...new Uint8Array(sha256)))
+			.replace(/=/g, '')
+			.replace(/\+/g, '-')
+			.replace(/\//g, '_')
+	}
+
+	goto_login(){
+		const client_id = window.round_manager.client_id
+		const redirect_uri = "http://127.0.0.1:5000"
+		const code_challenge = window.round_manager.code_challenge
+
+		const scope = "playlist-read-private playlist-read-collaborative"
+		const auth_url = new URL("https://accounts.spotify.com/authorize")
+
+		const params =  {
+			response_type: "code",
+			client_id: client_id,
+			scope,
+			code_challenge_method: "S256",
+			code_challenge: code_challenge,
+			redirect_uri: redirect_uri,
+		}
+
+		auth_url.search = new URLSearchParams(params).toString();
+		window.location.href = auth_url.toString();
+	}
+
+	get_token(){
+		const endpoint = `https://accounts.spotify.com/api/token`
+		const redirect_uri = "http://127.0.0.1:5000"
+		const client_id = window.round_manager.client_id
+		const code_verifier = window.round_manager.code_verifier
+		const code = window.round_manager.auth_code
+
+		const ajaxOpts = {
+			method: "POST",
+			url: endpoint,
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded"
+			},
+			data: {
+				grant_type: 'authorization_code',
+				client_id,
+				code,
+				redirect_uri,
+				code_verifier
+			},
+			json: true,
+			success: function (response){
+				window.round_manager.save_token(response)
+				console.log(response)
+			}
+		}
+
+		$.ajax(ajaxOpts)
+	}
+
+	save_token(raw_token_data){
+		const expires_in = raw_token_data.expires_in - 5 // Sets expiry 5 seconds earlier to account for possible latencies.
+		const expiry = new Date(new Date().getTime()+(expires_in*1000));
+		const token_data = {
+			token: raw_token_data.access_token,
+			scope: raw_token_data.scope,
+			expiry: expiry,
+			refresh_token: raw_token_data.refresh_token
+		}
+		localStorage.setItem("token_data", JSON.stringify(token_data))
+		window.round_manager.token_data = token_data
+		$("#login_button").addClass("disabled")
+		$("#load_button").removeClass("disabled")
+	}
+
+	verify_token_data(token_data){
+		if(token_data.expiry > Date.now()){
+			console.log("Token expired.")
+			window.round_manager.refresh_token(token_data)
+		} else {
+			console.log("Token valid.")
+			window.round_manager.token_data = token_data
+			$("#login_button").addClass("disabled")
+			$("#load_button").removeClass("disabled")
+		}
+	}
+
+	refresh_token(token_data){
+		const endpoint = `https://accounts.spotify.com/api/token`
+		const client_id = window.round_manager.client_id
+		const refresh_token = token_data.refresh_token
+
+		const ajaxOpts = {
+			method: "POST",
+			url: endpoint,
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded"
+			},
+			data: {
+				grant_type: 'refresh_token',
+				client_id,
+				refresh_token
+			},
+			json: true,
+			success: function (response){
+				window.round_manager.save_token(response)
+				console.log(response)
+			}
+		}
+
 		$.ajax(ajaxOpts)
 	}
 	
@@ -43,7 +171,7 @@ class MusicRoundManager{
 			method: "GET",
 			url: endpoint,
 			headers: {
-				'Authorization': 'Bearer ' + this.auth_token
+				'Authorization': 'Bearer ' + this.token_data.token
 			},
 			json: true,
 			success: function (response){
@@ -247,12 +375,34 @@ class MusicRoundManager{
 	}
 }
 
-$(window).on('load', function () {
+$(window).on('load', async function () {
 	window.round_manager = new MusicRoundManager()
+
+	const client_id = await window.round_manager.get_client_id()
+
+	window.round_manager.client_id = JSON.parse(client_id).client_id
+	window.round_manager.generate_code_challenge().then()
+
+	const url_params = new URLSearchParams(window.location.search)
+	const token_data = JSON.parse(localStorage.getItem("token_data"))
+
+	if (url_params.has("code")){
+		window.round_manager.auth_code = url_params.get("code")
+		if(token_data){
+			window.round_manager.verify_token_data(token_data)
+		} else {
+			window.round_manager.get_token()
+		}
+	} else {
+		if(token_data){
+			window.round_manager.verify_token_data(token_data)
+		}
+	}
+
 });
 
 $("#login_button").on("click", function (){
-	window.round_manager.get_auth()
+	window.round_manager.goto_login()
 })
 
 $("#load_button").on("click", function (){
