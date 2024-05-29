@@ -120,7 +120,7 @@ class MusicRoundManager{
 	}
 
 	verify_token_data(token_data){
-		if(token_data.expiry > Date.now()){
+		if(Date.parse(token_data.expiry) < Date.now()){
 			console.log("Token expired.")
 			window.round_manager.refresh_token(token_data)
 		} else {
